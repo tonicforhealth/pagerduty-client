@@ -13,12 +13,14 @@ matrix:
     - php: nightly
     - php: hhvm
   allow_failures:
+    - php: 5.5
     - php: nightly
     - php: hhvm
   fast_finish: true
 
 before_install:
   - if [[ $TRAVIS_PHP_VERSION != hhvm && $COVERAGE != yes ]]; then phpenv config-rm xdebug.ini; fi;
+  - if [[ $TRAVIS_PHP_VERSION == 5.5 ]]; then rm composer.lock; fi;
   - composer self-update
 
 install:

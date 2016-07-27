@@ -1,6 +1,6 @@
 {
     "name": "tonicforhealth/pagerduty-client",
-    "description": "PagerDuty client - This is the client lib for creation events and sent it to PagerDuty by API",
+    "description": "This is the client for creating events and sending them to PagerDuty by API",
     "license": "MIT",
     "keywords": ["tonicforhealth", "PagerDuty", "Client", "Event", "API", "REST", "v2"],
     "authors": [
@@ -13,14 +13,16 @@
         "php-http/client-common": "~1.0",
         "php-http/message": "~1.2",
         "php-http/discovery": "~0.6",
-        "guzzlehttp/guzzle": "~5.3|~6.1",
-        "puli/composer-plugin": "dev-classmap as 1.0-beta10",
-        "php-http/guzzle6-adapter": "^1.1"
-
+        "puli/composer-plugin": "^1.0@beta"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.8|~5.3",
-        "php-http/mock-client": "^0.3"
+        "php-http/mock-client": "^0.3",
+        "guzzlehttp/psr7": "^1.3"
+    },
+    "suggest": {
+        "php-http/guzzle6-adapter": "~1.1",
+        "guzzlehttp/guzzle": "~6.1"
     },
     "autoload": {
         "psr-4": {
@@ -35,12 +37,6 @@
     "config": {
         "bin-dir": "bin"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/thewilkybarkid/composer-plugin"
-        }
-    ],
     "prefer-stable": true,
     "minimum-stability": "dev"
 }

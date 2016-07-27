@@ -1,16 +1,16 @@
 <?php
 
-namespace TonicForHealth\PagerDutyClient\Client\Exception;
+namespace TonicForHealth\PagerDutyClient\Validation\Event\Exception;
 
 /**
- * Class RepresentProcessorException.
+ * Class EventValidationResponseErrorException.
  */
-class EventApiResponseErrorException extends EventClientException
+class EventValidationResponseErrorException extends EventValidationResponseException
 {
     /**
      * @param string $error
      *
-     * @return self
+     * @return EventValidationResponseErrorException
      */
     public static function eventApiResponseError($error)
     {
