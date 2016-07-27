@@ -8,22 +8,24 @@
 
 PagerDuty a client lib that provides us the object interface to use PagerDuty [Events-api](https://v2.developer.pagerduty.com/docs/events-api)
 and lets us to extend this lib to use with PagerDuty [Rest-api v2](https://v2.developer.pagerduty.com/docs/rest-api)
-## Installation using [Composer](http://getcomposer.org/)
-
+## Simple way for try it with [Composer](http://getcomposer.org/)
+### Installation
+if you want to try it
 ```bash
-$ composer require tonicforhealth/pagerduty-client
+mkdir pagerduty-client-app && cd pagerduty-client-app && composer init --stability=dev -n &&  composer require tonicforhealth/pagerduty-client php-http/guzzle6-adapter guzzlehttp/guzzle:~6.1
 ```
-
-## Usage
-### Simple usage example:
+## Usage example
 ```php
 <?php
+
 require __DIR__.'/vendor/autoload.php';
 
-use TonicForHealth\PagerDutyClient\Client\EventClient;
+use TonicForHealth\PagerDutyClient\Client\EventClientFactory;
+use TonicForHealth\PagerDutyClient\Client\Exception\EventClientTransportException;
+use TonicForHealth\PagerDutyClient\Client\Exception\ResponseDataValidationException;
 use TonicForHealth\PagerDutyClient\Entity\Event\Event;
 
-$eventClient = new EventClient(
+$eventClient = EventClientFactory::createEventClient(
     'https://events.pagerduty.com/generic/2010-04-15'
 );
 
@@ -32,22 +34,48 @@ $event = new Event();
 $event->serviceKey = 'change it to your "Integration Key"';
 $event->description = 'FAILURE for production/HTTP on machine srv01.acme.com';
 
-$response = $eventClient->post($event);
+try {
+    $response = $eventClient->post($event);
+} catch (EventClientTransportException $exception) {
+    printf('HTTP Transport problem:%s'."\n", $exception->getMessage());
+    exit(1);
+} catch (ResponseDataValidationException $exception) {
+    printf('Validation response problem:%s'."\n", $exception->getMessage());
+    exit(2);
+}
 
 var_dump($response);
 ```
-### Advance usage example:
+## For exist project with [Composer](http://getcomposer.org/)
+### Installation
+if you already have project with composer.json check and if it upper change you minimum-stability
+```bash
+$ composer config minimum-stability dev
+```
+then add tonicforhealth/pagerduty-client
+```bash
+$ composer require tonicforhealth/pagerduty-client
+```
+also you need to add a [http-client](http://docs.php-http.org/en/latest/clients/curl-client.html#installation) with adapter or if you have some one you need to find a php-http [adapter](https://github.com/php-http?utf8=%E2%9C%93&query=adapter) for it
+```bash
+$ composer require php-http/guzzle6-adapter guzzlehttp/guzzle:~6.1
+```
+### Advance Usage example
 ```php
 <?php
+
 require __DIR__.'/vendor/autoload.php';
 
 use Http\Client\Common\HttpMethodsClient;
 use Http\Discovery\HttpClientDiscovery;
 use Http\Discovery\MessageFactoryDiscovery;
 use TonicForHealth\PagerDutyClient\Client\EventClient;
+use TonicForHealth\PagerDutyClient\Client\Exception\EventClientTransportException;
+use TonicForHealth\PagerDutyClient\Client\Exception\ResponseDataValidationException;
 use TonicForHealth\PagerDutyClient\Entity\Event\Event;
 use TonicForHealth\PagerDutyClient\Entity\Event\EventRepresentation;
 use TonicForHealth\PagerDutyClient\RepresentProcessor\RepresentProcessor;
+use TonicForHealth\PagerDutyClient\Validation\ValidationResponseFactory;
 
 $representProcessor = new RepresentProcessor();
 
@@ -55,15 +83,18 @@ $eventRepresentation = new EventRepresentation();
 
 $representProcessor->addRepresentation($eventRepresentation);
 
+$validationResponse = ValidationResponseFactory::createValidation('Event');
+
 $httpMethodsClient = new HttpMethodsClient(
     HttpClientDiscovery::find(),
     MessageFactoryDiscovery::find()
 );
 
 $eventClient = new EventClient(
-    $httpMethodsClient,
     'https://events.pagerduty.com/generic/2010-04-15',
-    $representProcessor
+    $httpMethodsClient,
+    $representProcessor,
+    $validationResponse
 );
 
 $event = new Event();
@@ -71,7 +102,15 @@ $event = new Event();
 $event->serviceKey = 'change it to your "Integration Key"';
 $event->description = 'FAILURE for production/HTTP on machine srv01.acme.com';
 
-$response = $eventClient->post($event);
+try {
+    $response = $eventClient->post($event);
+} catch (EventClientTransportException $exception) {
+    printf('HTTP Transport problem:%s'."\n", $exception->getMessage());
+    exit(1);
+} catch (ResponseDataValidationException $exception) {
+    printf('Validation response problem:%s'."\n", $exception->getMessage());
+    exit(2);
+}
 
 var_dump($response);
 

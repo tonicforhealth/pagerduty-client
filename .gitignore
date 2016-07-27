@@ -3,5 +3,4 @@
 /phpunit.xml
 /build/
 /.puli
-/composer.lock
 /puli.json
